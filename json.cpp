@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <format>
+#include <iostream>
 #include <string>
 
 namespace json {
@@ -28,19 +29,21 @@ namespace json {
       }
 
       bool found{};
+      // std::cout << "current index: " << raw_json[i] << std::endl;
       // TODO: Fix this heavy nesting. It doesn't look too good
       for (auto lexer: generic_lexers) {
         if (auto [token, new_index, error] = lexer(raw_json, i); i != new_index) {
-          if (error.length())
+          if (!error.empty())
             return {{}, error};
 
-          token.full_source = original_copy;
           tokens.push_back(token);
           i = new_index - 1;
           found = true;
           break;
         }
       }
+
+      // std::cout << "new " << raw_json[i] << std::endl;
 
       if (found)
         continue;
@@ -80,7 +83,7 @@ namespace json {
     }
 
     // Do the last line
-    while (counter < source.length()) {
+    while (counter < static_cast<int>(std::ssize(source))) {
       auto c{source[counter]};
       if (c == '\n')
         break;
@@ -102,6 +105,7 @@ namespace json {
     while (index < static_cast<int>(std::ssize(raw_json)) && std::isspace(raw_json[index]))
       index++;
 
+    // std::cout << raw_json[index] << std::endl;
     return index;
   }
 } // namespace json

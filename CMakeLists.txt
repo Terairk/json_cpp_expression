@@ -8,6 +8,10 @@ add_executable(json_cpp main.cpp
 		json.hpp
 		json.cpp
 		lex_func.cpp
-		lex_func.hpp)
+		lex_func.hpp
+		parse_func.cpp
+		parse_func.hpp
+		expr.cpp
+		expr.hpp)
 
 target_compile_options(json_cpp PRIVATE -Wall -Wextra -Werror)

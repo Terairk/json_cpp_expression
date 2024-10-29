@@ -23,32 +23,65 @@ namespace json {
     return {token, index, ""};
   }
 
-  std::tuple<JSONToken, int, std::string> lex_string(std::string_view raw_json, int original_index) {
+std::tuple<JSONToken, int, std::string> lex_string(std::string_view raw_json, int original_index) {
     int index{original_index};
     JSONToken token{"", JSONTokenType::String, index, raw_json};
-    std::string value{};
     auto c = raw_json[index];
+
     if (c != '"') {
-      // std::cout << "Got here " << c << std::endl;
-      return {token, original_index, ""};
+        return {token, original_index, ""};
     }
 
-    index++;
-    // now inside the quotes
+    index++;  // move past opening quote
 
-    // TODO: handle nested quotes
-    while (c = raw_json[index], c != '"') {
-      if (index == static_cast<int>(std::ssize(raw_json))) {
-        return {token, index, format_error_json("Unexpected EOF while lexing string", raw_json, index)};
-      }
+    while (index < static_cast<int>(std::ssize(raw_json))) {
+        c = raw_json[index];
 
-      token.value += c;
-      index++;
+        if (c == '"') {
+            // Found end of string
+            index++;  // move past closing quote
+            return {token, index, ""};
+        }
+
+        if (c == '\\') {
+            // Handle escape sequences
+            if (index + 1 >= static_cast<int>(std::ssize(raw_json))) {
+                return {token, index, format_error_json("Unexpected EOF after backslash", raw_json, index)};
+            }
+
+            index++;  // move to character after backslash
+            c = raw_json[index];
+
+            switch (c) {
+                case '"':  token.value += '"';  break;
+                case '\\': token.value += '\\'; break;
+                case '/':  token.value += '/';  break;
+                case 'b':  token.value += '\b'; break;
+                case 'f':  token.value += '\f'; break;
+                case 'n':  token.value += '\n'; break;
+                case 'r':  token.value += '\r'; break;
+                case 't':  token.value += '\t'; break;
+                case 'u':
+                    // Handle Unicode escape sequences
+                    if (index + 4 >= static_cast<int>(std::ssize(raw_json))) {
+                        return {token, index, format_error_json("Incomplete Unicode escape sequence", raw_json, index)};
+                    }
+                    // TODO: Implement Unicode escape sequence handling
+                    // For now, just skip the next 4 characters
+                    index += 4;
+                    break;
+                default:
+                    return {token, index, format_error_json("Invalid escape sequence", raw_json, index)};
+            }
+        } else {
+            token.value += c;
+        }
+
+        index++;
     }
-    // go pass the closing "
-    index++;
-    return {token, index, ""};
-  }
+
+    return {token, index, format_error_json("Unterminated string", raw_json, index)};
+}
 
 
   // returns a string representation of the Number, we ensure its valid here

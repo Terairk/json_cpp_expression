@@ -4,8 +4,8 @@
 #include <sstream>
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
+    if (argc == 1) {
+        std::cerr << "Expected JSON file path as argument" << std::endl;
         return 1;
     }
 
@@ -24,16 +24,14 @@ int main(int argc, char *argv[]) {
     // Close the file
     file.close();
 
-    // Process the JSON
-    auto [tokens, error] = json::lex(in);
+    // Parse the JSON
+    auto [ast, error] = json::parse(in);
     if (error.size()) {
         std::cerr << error << std::endl;
         return 1;
     }
 
-    for (auto t : tokens) {
-        std::cout << "Token: " << t.value << std::endl;
-    }
-
+    // Output the parsed JSON
+    std::cout << json::deparse(ast);
     return 0;
 }

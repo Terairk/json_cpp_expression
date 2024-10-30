@@ -1,37 +1,50 @@
-#include "json.hpp"
-#include <iostream>
+
+
 #include <fstream>
+#include <iostream>
+#include <ostream>
 #include <sstream>
-
+#include "evaluator.hpp"
+#include "expr_parser.hpp"
+#include "json.hpp"
 int main(int argc, char *argv[]) {
-    if (argc == 1) {
-        std::cerr << "Expected JSON file path as argument" << std::endl;
-        return 1;
-    }
+  if (argc != 3) {
+    std::cerr << "Usage: " << argv[0] << " <json_file> <expression>" << std::endl;
+    return 1;
+  }
 
-    // Open the file
-    std::ifstream file(argv[1]);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << argv[1] << std::endl;
-        return 1;
-    }
+  // Open and read the JSON file
+  std::ifstream file(argv[1]);
+  if (!file.is_open()) {
+    std::cerr << "Failed to open file: " << argv[1] << std::endl;
+    return 1;
+  }
 
-    // Read the entire file into a string
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string in = buffer.str();
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  file.close();
 
-    // Close the file
-    file.close();
+  // Parse the JSON file
+  auto [json_ast, json_error] = json::parse(buffer.str());
+  if (!json_error.empty()) {
+    std::cerr << "JSON parse error: " << json_error << std::endl;
+    return 1;
+  }
 
-    // Parse the JSON
-    auto [ast, error] = json::parse(in);
-    if (error.size()) {
-        std::cerr << error << std::endl;
-        return 1;
-    }
+  // Parse the expression
+  ExprParser parser;
+  try {
+    auto expr = parser.parse(argv[2]);
 
-    // Output the parsed JSON
-    std::cout << json::deparse(ast);
-    return 0;
+    // Evaluator uses the json_ast as the basis for querying,
+    // expr is the thing to evaluate (uses the json_ast as the tree to search)
+    Evaluator evaluator(json_ast);
+    auto result = evaluator.evaluate(expr);
+    std::cout << json::deparse(result) << std::endl;
+  } catch (const std::exception &e) {
+    std::cerr << "Expression evaluation error: " << e.what() << std::endl;
+    return 1;
+  }
+
+  return 0;
 }

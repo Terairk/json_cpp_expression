@@ -28,6 +28,7 @@ namespace json {
     JSONValue() : value(std::monostate{}) {}
 
     // Explicit constructors for each type, can't just do std::forward unfortunately
+    // get some compile time errors unfortunately
     explicit JSONValue(const std::string &v) : value(v) {}
     explicit JSONValue(std::string &&v) : value(std::move(v)) {}
     explicit JSONValue(const char *v) : value(std::string(v)) {}
@@ -47,7 +48,7 @@ namespace json {
 
   // this deparse method could potentially be done through std::visit
   // worth considering
-  std::string deparse(const JSONValue&, std::string whitespace = "");
+  std::string deparse(const JSONValue &, std::string whitespace = "");
 
   std::string format_error_json(std::string_view base, std::string_view source, int error_index);
   std::string format_parse_error(std::string_view base, JSONToken token);

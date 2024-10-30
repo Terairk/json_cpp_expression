@@ -13,14 +13,14 @@ namespace json {
   std::string JSONTokenType_to_string(JSONTokenType jtt);
 
   std::tuple<JSONValue, std::string> parse(std::string_view source) {
-  auto [tokens, error] = json::lex(source);
-  if (!error.empty()) {
-    return {{}, error};
-  }
+    auto [tokens, error] = json::lex(source);
+    if (!error.empty()) {
+      return {{}, error};
+    }
 
-  auto [ast, _, error1] = json::parse(tokens);
-  return {ast, error1};
-}
+    auto [ast, _, error1] = json::parse(tokens);
+    return {ast, error1};
+  }
 
   // TODO: make std::string a more powerful error type. Not sure how to do this yet in C++
   std::tuple<std::vector<JSONToken>, std::string> lex(std::string_view raw_json) {
@@ -95,12 +95,12 @@ namespace json {
     return {JSONValue(), index, format_parse_error("Failed to parse", token)};
   }
 
-  std::string deparse(const JSONValue& v, std::string whitespace) {
+  std::string deparse(const JSONValue &v, std::string whitespace) {
     return std::visit(
-        [&whitespace]<typename T0>(const T0& value) -> std::string {
-            using T = std::decay_t<T0>;
-            
-            if constexpr (std::is_same_v<T, std::monostate>) {
+        [&whitespace]<typename T0>(const T0 &value) -> std::string {
+          using T = std::decay_t<T0>;
+
+          if constexpr (std::is_same_v<T, std::monostate>) {
             return "null";
           } else if constexpr (std::is_same_v<T, std::string>) {
             return "\"" + value + "\"";
@@ -133,9 +133,8 @@ namespace json {
           }
           return "";
         },
-        v.value
-    );
-}
+        v.value);
+  }
 
   std::string JSONTokenType_to_string(JSONTokenType jtt) {
     switch (jtt) {

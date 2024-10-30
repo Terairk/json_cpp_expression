@@ -33,8 +33,8 @@ To configure tests in CLion:
 3. Select Catch
 4. Set tags: [json_eval]
 
-#### Manual Build
-# Or use gcc/g++ if preferred
+### Manual Build
+You can use gcc/g++ if preferred
 ```bash
 mkdir build
 cd build

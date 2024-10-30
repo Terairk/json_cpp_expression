@@ -5,7 +5,7 @@
 #include <format>
 #include <iostream>
 #include <string>
-
+#include <cmath>
 #include "parse_func.hpp"
 
 namespace json {
@@ -95,6 +95,49 @@ namespace json {
     return {JSONValue(), index, format_parse_error("Failed to parse", token)};
   }
 
+  static std::string doubleToString(double num, int maxPrecision = 10) {
+    const double epsilon = 1e-10;
+
+
+    // Round to maxPrecision decimal places
+    double factor = std::pow(10, maxPrecision);
+    double rounded = std::round(num * factor) / factor;
+
+    // If the number is very close to an integer
+    if (std::fabs(rounded - std::round(rounded)) < epsilon) {
+        std::stringstream outputStream;
+        outputStream << std::fixed << std::setprecision(0) << rounded;
+        return outputStream.str();
+    }
+
+    // Convert to string for analysis
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(maxPrecision) << rounded;
+    std::string str = oss.str();
+
+    // Remove trailing zeros
+    while (str.back() == '0') {
+        str.pop_back();
+    }
+
+    // Remove decimal point if it's the last character
+    if (str.back() == '.') {
+        str.pop_back();
+    }
+
+    return str;
+}
+
+  // This is used for special formatting for double's if it's an int
+  // TODO: Maybe have a way to detect smth like 0.029999999 to be 0.03
+  // static std::string doubleToString(double num) {
+  //   if (std::fabs(num - std::round(num)) < 1e-10) {
+  //     return std::format("{:.1f}", num);
+  //   }
+  //
+  //   return std::format("{}", num);
+  // }
+
   std::string deparse(const JSONValue &v, std::string whitespace) {
     return std::visit(
         [&whitespace]<typename T0>(const T0 &value) -> std::string {
@@ -105,28 +148,28 @@ namespace json {
           } else if constexpr (std::is_same_v<T, std::string>) {
             return "\"" + value + "\"";
           } else if constexpr (std::is_same_v<T, double>) {
-            return std::to_string(value);
+            return doubleToString(value);
           } else if constexpr (std::is_same_v<T, bool>) {
             return value ? "true" : "false";
           } else if constexpr (std::is_same_v<T, std::vector<JSONValue>>) {
-            std::string s = "[\n";
+            std::string s = "[";
             for (size_t i = 0; i < value.size(); i++) {
-              s += whitespace + "  " + json::deparse(value[i], whitespace + "  ");
+              s += whitespace + "" + json::deparse(value[i], whitespace + "");
               if (i < value.size() - 1) {
-                s += ",";
+                s += ", ";
               }
-              s += "\n";
+              // s += "\n";
             }
             return s + whitespace + "]";
           } else if constexpr (std::is_same_v<T, std::map<std::string, JSONValue>>) {
-            std::string s = "{\n";
+            std::string s = "{";
             size_t i = 0;
             for (const auto &[key, val]: value) {
-              s += whitespace + "  " + "\"" + key + "\": " + json::deparse(val, whitespace + "  ");
+              s += whitespace + "" + "\"" + key + "\": " + json::deparse(val, whitespace + "");
               if (i < value.size() - 1) {
-                s += ",";
+                s += ", ";
               }
-              s += "\n";
+              // s += "\n";
               i++;
             }
             return s + whitespace + "}";

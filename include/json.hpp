@@ -51,5 +51,5 @@ namespace json {
   std::string deparse(const JSONValue &, std::string whitespace = "");
 
   std::string format_error_json(std::string_view base, std::string_view source, int error_index);
-  std::string format_parse_error(std::string_view base, JSONToken token);
+  std::string format_parse_error(std::string_view base, const JSONToken& token);
 } // namespace json

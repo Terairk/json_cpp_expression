@@ -20,7 +20,7 @@ namespace json {
     if (index - original_index == static_cast<int>(std::ssize(keyword))) {
       token.value = keyword;
     }
-    return {token, index, ""};
+    return std::make_tuple( token, index, "" );
   }
 
   std::tuple<JSONToken, int, std::string> lex_string(std::string_view raw_json, int original_index) {
@@ -29,7 +29,7 @@ namespace json {
     auto c = raw_json[index];
 
     if (c != '"') {
-      return {token, original_index, ""};
+      return std::make_tuple( token, original_index, "" );
     }
 
     index++; // move past opening quote
@@ -40,7 +40,7 @@ namespace json {
       if (c == '"') {
         // Found end of string
         index++; // move past closing quote
-        return {token, index, ""};
+        return std::make_tuple( token, index, "" );
       }
 
       if (c == '\\') {
@@ -170,7 +170,7 @@ namespace json {
     }
 
     if (!has_digit) {
-      return {token, index, ""};
+      return std::make_tuple( token, index, "" );
     }
 
     token.value = std::string(slice.substr(0, num_length));
@@ -187,7 +187,7 @@ namespace json {
       index++;
     }
 
-    return {token, index, ""};
+    return std::make_tuple( token, index, "" );
   }
 
   std::tuple<JSONToken, int, std::string> lex_null(std::string_view raw_json, int index) {

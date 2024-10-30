@@ -99,7 +99,6 @@ std::unique_ptr<Expr> ExprParser::parsePath() {
     }
   }
 
-  int x = 0;
   return std::make_unique<PathExpr>(std::move(segments));
 }
 

@@ -12,7 +12,7 @@ namespace json {
   int skip_whitespace(std::string_view raw_json, int index);
   std::string JSONTokenType_to_string(JSONTokenType jtt);
 
-  std::tuple<JSONValue, std::string> parse(std::string_view source) {
+  std::tuple<JSONValue, std::string> parse(const std::string_view source) {
     auto [tokens, error] = json::lex(source);
     if (!error.empty()) {
       return {{}, error};
@@ -22,28 +22,22 @@ namespace json {
     return {ast, error1};
   }
 
-  // TODO: make std::string a more powerful error type. Not sure how to do this yet in C++
   std::tuple<std::vector<JSONToken>, std::string> lex(std::string_view raw_json) {
     std::vector<JSONToken> tokens;
 
     // All tokens will store a pointer to the original source string for debugging purposes
     // Tokens include an index which is used to identify its offset from the start of the string
-    auto original_copy = std::make_shared<std::string>(raw_json);
 
     // function pointers that will attempt to parse
-    // TODO: Potentially fix this to use std::visit with variants
     auto generic_lexers = {lex_syntax, lex_string, lex_number, lex_null, lex_true, lex_false};
     for (int i{}; i < static_cast<int>(std::ssize(raw_json)); i++) {
       // Skip past whitespace, this feels unnecessarily complicated
-      // TODO: Potentially Fix this
-      if (auto new_index = skip_whitespace(raw_json, i); i != new_index) {
+      if (const auto new_index = skip_whitespace(raw_json, i); i != new_index) {
         i = new_index - 1;
         continue;
       }
 
       bool found{};
-      // std::cout << "current index: " << raw_json[i] << std::endl;
-      // TODO: Fix this heavy nesting. It doesn't look too good
       for (auto lexer: generic_lexers) {
         if (auto [token, new_index, error] = lexer(raw_json, i); i != new_index) {
           if (!error.empty())
@@ -56,7 +50,6 @@ namespace json {
         }
       }
 
-      // std::cout << "new " << raw_json[i] << std::endl;
 
       if (found)
         continue;
@@ -68,10 +61,10 @@ namespace json {
   }
 
   std::tuple<JSONValue, int, std::string> parse(const std::vector<JSONToken> &tokens, int index) {
-    auto token = tokens[index];
+    const auto& token = tokens[index];
     switch (token.type) {
       case JSONTokenType::Number: {
-        auto n = std::stod(token.value);
+        const auto n = std::stod(token.value);
         return {JSONValue(n), index + 1, ""};
       }
       case JSONTokenType::Boolean:
@@ -95,8 +88,8 @@ namespace json {
     return {JSONValue(), index, format_parse_error("Failed to parse", token)};
   }
 
-  static std::string doubleToString(double num, int maxPrecision = 10) {
-    const double epsilon = 1e-10;
+  static std::string doubleToString(const double num, const int maxPrecision = 10) {
+    constexpr double epsilon = 1e-10;
 
 
     // Round to maxPrecision decimal places
@@ -128,16 +121,6 @@ namespace json {
     return str;
 }
 
-  // This is used for special formatting for double's if it's an int
-  // TODO: Maybe have a way to detect smth like 0.029999999 to be 0.03
-  // static std::string doubleToString(double num) {
-  //   if (std::fabs(num - std::round(num)) < 1e-10) {
-  //     return std::format("{:.1f}", num);
-  //   }
-  //
-  //   return std::format("{}", num);
-  // }
-
   std::string deparse(const JSONValue &v, std::string whitespace) {
     return std::visit(
         [&whitespace]<typename T0>(const T0 &value) -> std::string {
@@ -154,7 +137,7 @@ namespace json {
           } else if constexpr (std::is_same_v<T, std::vector<JSONValue>>) {
             std::string s = "[";
             for (size_t i = 0; i < value.size(); i++) {
-              s += whitespace + "" + json::deparse(value[i], whitespace + "");
+              s += whitespace + json::deparse(value[i], whitespace);
               if (i < value.size() - 1) {
                 s += ", ";
               }
@@ -165,7 +148,7 @@ namespace json {
             std::string s = "{";
             size_t i = 0;
             for (const auto &[key, val]: value) {
-              s += whitespace + "" + "\"" + key + "\": " + json::deparse(val, whitespace + "");
+              s.append(whitespace).append("\"").append(key).append("\":").append(json::deparse(val, whitespace));
               if (i < value.size() - 1) {
                 s += ", ";
               }
@@ -179,7 +162,7 @@ namespace json {
         v.value);
   }
 
-  std::string JSONTokenType_to_string(JSONTokenType jtt) {
+  std::string JSONTokenType_to_string(const JSONTokenType jtt) {
     switch (jtt) {
       case JSONTokenType::String:
         return "String";
@@ -197,7 +180,7 @@ namespace json {
     return "ERROR: NEGLECTED";
   }
 
-  std::string format_parse_error(std::string_view base, JSONToken token) {
+  std::string format_parse_error(const std::string_view base, const JSONToken& token) {
     std::ostringstream s;
     s << "Unexpected token '" << token.value << "', type '" << JSONTokenType_to_string(token.type) << "', index ";
     s << std::endl << base;
@@ -210,7 +193,6 @@ namespace json {
     std::string whitespace;
 
     // Process characters up to the error index
-    // TODO: Why?
     while (counter != error_index) {
       auto c{source[counter]};
 
@@ -250,7 +232,6 @@ namespace json {
     while (index < static_cast<int>(std::ssize(raw_json)) && std::isspace(raw_json[index]))
       index++;
 
-    // std::cout << raw_json[index] << std::endl;
     return index;
   }
 } // namespace json

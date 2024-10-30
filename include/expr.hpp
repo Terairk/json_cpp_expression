@@ -16,6 +16,7 @@ struct LiteralExpr : Expr {
 };
 
 // Path expression (a.b[1])
+// "a", "b", "Expr(1)"
 struct PathExpr : Expr {
   std::vector<std::variant<std::string, std::unique_ptr<Expr>>> segments;
   explicit PathExpr(std::vector<std::variant<std::string, std::unique_ptr<Expr>>> segs);

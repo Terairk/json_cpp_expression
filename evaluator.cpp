@@ -143,7 +143,6 @@ json::JSONValue Evaluator::evaluateSize(const std::vector<json::JSONValue> &args
 
 
   // The following returns double because it's more convenient to line up with JSONValue
-  // TODO: Add Int support for JSONValue
   const auto &arg = args[0];
   if (auto *arr = std::get_if<std::vector<json::JSONValue>>(&arg.value)) {
     return json::JSONValue(static_cast<double>(arr->size()));

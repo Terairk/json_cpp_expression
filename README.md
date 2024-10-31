@@ -1,7 +1,7 @@
 # JSON Expression Parser + Evaluator
 
 ## Overview
-A C++ implementation of a JSON parser and evaluator, developed as part of the "LLDB Debugger for Windows" task for JetBrains Internship. This project showcases modern C++ features including move constructors, std::format, std::string_view, and std::variant.
+A C++ implementation of a JSON parser and evaluator, developed as part of the "LLDB Debugger for Windows" task for JetBrains Internship. This project showcases modern C++ features including move constructors, std::format, std::string_view, and std::variant. For the JSON parsing section: I took heavy inspiration from this for the general structure + error handling: [blog post](https://notes.eatonphil.com/writing-a-simple-json-library-in-modern-cpp.html)
 
 ## Features
 - JSON file parsing and evaluation

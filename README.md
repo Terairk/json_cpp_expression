@@ -40,6 +40,7 @@ mkdir build
 cd build
 CC=clang CXX=clang++ cmake .. 
 cmake --build . -j $(nproc)
+ln -s build/compile_commands.json compile_commands.json
 ```
 
 The main files should then be in:

@@ -32,6 +32,7 @@ To configure tests in CLion:
 2. Add New Configuration
 3. Select Catch
 4. Set tags: [json_eval]
+5. Target is Catch_tests_run
 
 ### Manual Build
 You can use gcc/g++ if preferred (ie CC=gcc CXX=g++ cmake ..)

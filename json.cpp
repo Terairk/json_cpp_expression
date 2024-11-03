@@ -1,11 +1,11 @@
 #include "json.hpp"
 #include "lex_func.hpp"
 
-#include <chrono>
+#include <cmath>
 #include <format>
+#include <iomanip>
 #include <iostream>
 #include <string>
-#include <cmath>
 #include "parse_func.hpp"
 
 namespace json {
@@ -15,11 +15,11 @@ namespace json {
   std::tuple<JSONValue, std::string> parse(const std::string_view source) {
     auto [tokens, error] = json::lex(source);
     if (!error.empty()) {
-      return {{}, error};
+      return std::make_tuple(JSONValue{}, error);
     }
 
     auto [ast, _, error1] = json::parse(tokens);
-    return {ast, error1};
+    return std::make_tuple(ast, error1);
   }
 
   std::tuple<std::vector<JSONToken>, std::string> lex(std::string_view raw_json) {
@@ -54,14 +54,14 @@ namespace json {
       if (found)
         continue;
 
-      return {{}, format_error_json("Unable to lex", raw_json, i)};
+      return std::make_tuple(std::vector<JSONToken>{}, format_error_json("Unable to lex", raw_json, i));
     }
 
     return {tokens, ""};
   }
 
   std::tuple<JSONValue, int, std::string> parse(const std::vector<JSONToken> &tokens, int index) {
-    const auto& token = tokens[index];
+    const auto &token = tokens[index];
     switch (token.type) {
       case JSONTokenType::Number: {
         const auto n = std::stod(token.value);
@@ -85,7 +85,7 @@ namespace json {
         }
     }
 
-    return {JSONValue(), index, format_parse_error("Failed to parse", token)};
+    return {JSONValue{}, index, format_parse_error("Failed to parse", token)};
   }
 
   static std::string doubleToString(const double num, const int maxPrecision = 10) {
@@ -98,28 +98,28 @@ namespace json {
 
     // If the number is very close to an integer
     if (std::fabs(rounded - std::round(rounded)) < epsilon) {
-        std::stringstream outputStream;
-        outputStream << std::fixed << std::setprecision(0) << rounded;
-        return outputStream.str();
+      std::stringstream outputStream{};
+      outputStream << std::fixed << std::setprecision(0) << rounded;
+      return outputStream.str();
     }
 
     // Convert to string for analysis
-    std::ostringstream oss;
+    std::ostringstream oss{};
     oss << std::fixed << std::setprecision(maxPrecision) << rounded;
     std::string str = oss.str();
 
     // Remove trailing zeros
     while (str.back() == '0') {
-        str.pop_back();
+      str.pop_back();
     }
 
     // Remove decimal point if it's the last character
     if (str.back() == '.') {
-        str.pop_back();
+      str.pop_back();
     }
 
     return str;
-}
+  }
 
   std::string deparse(const JSONValue &v, std::string whitespace) {
     return std::visit(
@@ -180,7 +180,7 @@ namespace json {
     return "ERROR: NEGLECTED";
   }
 
-  std::string format_parse_error(const std::string_view base, const JSONToken& token) {
+  std::string format_parse_error(const std::string_view base, const JSONToken &token) {
     std::ostringstream s;
     s << "Unexpected token '" << token.value << "', type '" << JSONTokenType_to_string(token.type) << "', index ";
     s << std::endl << base;

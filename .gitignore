@@ -2,6 +2,10 @@
 # Prerequisites
 *.d
 
+# Build
+compile_commands.json
+.cache
+
 # Compiled Object files
 *.slo
 *.lo
@@ -35,3 +39,4 @@
 # Folders
 .idea
 cmake-build-clangdebug
+build

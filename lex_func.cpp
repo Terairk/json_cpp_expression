@@ -99,36 +99,6 @@ namespace json {
     return {token, index, format_error_json("Unterminated string", raw_json, index)};
   }
 
-
-  // returns a string representation of the Number, we ensure its valid here
-  // std::tuple<JSONToken, int, std::string> lex_number(std::string_view raw_json, int index) {
-  //    JSONToken token{"", JSONTokenType::Number, index};
-  //
-  //    int raw_json_size = static_cast<int>(std::ssize(raw_json));
-  //
-  //    // Check for minus sign
-  //    if (index < raw_json_size && raw_json[index] == '-')
-  //      index++;
-  //
-  //
-  //    // Ensure there's at least one digit
-  //    if (index >= raw_json_size || !std::isdigit(raw_json[index])) {
-  //      // Invalid Number so stop here
-  //      return {token, index, ""};
-  //    }
-  //
-  //    // Parse integer part
-  //    auto start = static_cast<size_t>(index);
-  //    while (index < raw_json_size && std::isdigit(raw_json[index]))
-  //      index++;
-  //
-  //    // Check for decimal point
-  //    if (index < raw_json_size && raw_json[index] == '.') {
-  //      index++;
-  //
-  //    }
-  //  }
-
   std::tuple<JSONToken, int, std::string> lex_number(std::string_view raw_json, int index) {
     JSONToken token{"", JSONTokenType::Number, index, raw_json};
     std::string_view slice = raw_json.substr(index);

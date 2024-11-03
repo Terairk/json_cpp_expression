@@ -34,7 +34,7 @@ To configure tests in CLion:
 4. Set tags: [json_eval]
 
 ### Manual Build
-You can use gcc/g++ if preferred
+You can use gcc/g++ if preferred (ie CC=gcc CXX=g++ cmake ..)
 ```bash
 mkdir build
 cd build

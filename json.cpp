@@ -57,7 +57,7 @@ namespace json {
       return std::make_tuple(std::vector<JSONToken>{}, format_error_json("Unable to lex", raw_json, i));
     }
 
-    return {tokens, ""};
+    return std::make_tuple(tokens, "");
   }
 
   std::tuple<JSONValue, int, std::string> parse(const std::vector<JSONToken> &tokens, int index) {

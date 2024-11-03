@@ -1,7 +1,7 @@
 # JSON Expression Parser + Evaluator
 
 ## Overview
-A C++ implementation of a JSON parser and evaluator, developed as part of the "LLDB Debugger for Windows" task for JetBrains Internship. This project showcases modern C++ features including move constructors, std::format, std::string_view, and std::variant.
+A C++ implementation of a JSON parser and evaluator, developed as part of the "LLDB Debugger for Windows" task for JetBrains Internship. This project showcases modern C++ features including move constructors, std::format, std::string_view, and std::variant. For the JSON parsing section: I took heavy inspiration from this for the general structure + error handling: [blog post](https://notes.eatonphil.com/writing-a-simple-json-library-in-modern-cpp.html)
 
 ## Features
 - JSON file parsing and evaluation
@@ -32,14 +32,16 @@ To configure tests in CLion:
 2. Add New Configuration
 3. Select Catch
 4. Set tags: [json_eval]
+5. Target is Catch_tests_run
 
 ### Manual Build
-You can use gcc/g++ if preferred
+You can use gcc/g++ if preferred (ie CC=gcc CXX=g++ cmake ..)
 ```bash
 mkdir build
 cd build
 CC=clang CXX=clang++ cmake .. 
 cmake --build . -j $(nproc)
+ln -s build/compile_commands.json compile_commands.json
 ```
 
 The main files should then be in:

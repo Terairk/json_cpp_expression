@@ -11,7 +11,7 @@ A C++ implementation of a JSON parser and evaluator, developed as part of the "L
 
 ## Prerequisites
 - C++20 compatible compiler
-- Catch2 testing framework
+- Catch2 testing framework (should be done automatically using FetchContent)
 - CMake build system (3.15 or later)
 
 ## Installation
@@ -49,9 +49,10 @@ The main files should then be in:
 ### Main application: build/json_eval
 ### Test suite: build/Catch_tests/Catch_tests_run
 
-### Usage
+### Usage (inside build directory)
 ```bash
 ./json_eval <path_to_json> "<query>"
+./Catch_tests/Catch_tests_run
 ```
 ## Tools & Technologies
 - C++20 standard library
